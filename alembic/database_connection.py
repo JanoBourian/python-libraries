@@ -14,4 +14,3 @@ DATABASE_URL = URL.create(
 engine = create_engine(DATABASE_URL, echo=True)
 
 session_pool = sessionmaker(engine)
-

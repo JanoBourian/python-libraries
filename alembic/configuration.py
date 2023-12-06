@@ -1,6 +1,7 @@
 from environs import Env
 import os
 
+
 def env_reader() -> Env:
     env = Env()
     local_path = ".env"
@@ -12,5 +13,6 @@ def env_reader() -> Env:
         env.read_env(cloud_path)
 
     return env
+
 
 env = env_reader()
