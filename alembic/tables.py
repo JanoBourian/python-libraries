@@ -1,5 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import BIGINT
+from sqlalchemy import BIGINT, VARCHAR, func, ForeignKey
+from sqlalchemy.dialects.postresql import TIMESTAMP
+import datetime
 
 
 class Base(DeclarativeBase):
@@ -22,3 +24,12 @@ class User(Base):
     __tablename__ = "users"
 
     telegram_id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
+    full_name: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+    username: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+    language_code: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP, nullable=False, server_default=func.now()
+    )
+    referred_id: Mapped[int] = mapped_column(
+        BIGINT, ForeignKey("users.telegram_id", ondelete="SET NULL"), nullable=False
+    )
