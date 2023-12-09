@@ -1,6 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import BIGINT, VARCHAR, func, ForeignKey, Column, UUID
-from sqlalchemy.dialects.postresql import TIMESTAMP
+from sqlalchemy import BIGINT, VARCHAR, func, ForeignKey, Column, UUID, TIMESTAMP
 from sqlalchemy.ext.declarative import declared_attr
 import datetime
 

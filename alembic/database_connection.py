@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, URL, text
 from sqlalchemy.orm import sessionmaker
 from configuration import env
+from tables import Base, User, Product, Order, OrderProduct
 
 # connection string format: driver+postgresql://user:pass@host:port/dbname
 DATABASE_URL = URL.create(
@@ -12,5 +13,6 @@ DATABASE_URL = URL.create(
     database=env("DATABASE"),
 )
 engine = create_engine(DATABASE_URL, echo=True)
-
-session_pool = sessionmaker(engine)
+Base.metadata.drop_all(engine)
+# Base.metadata.create_all(engine)
+# session_pool = sessionmaker(engine)
