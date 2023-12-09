@@ -1,6 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import BIGINT, VARCHAR, func, ForeignKey
+from sqlalchemy import BIGINT, VARCHAR, func, ForeignKey, Column, UUID
 from sqlalchemy.dialects.postresql import TIMESTAMP
+from sqlalchemy.ext.declarative import declared_attr
 import datetime
 
 
@@ -8,28 +9,51 @@ class Base(DeclarativeBase):
     pass
 
 
-# 1.- Create a Table
-# 2.- Creating columns
-# 3.- SQL data types
-# 4.- Primary key
-# 5.- NUll Constraints
-# 6.- Default value
-# 7.- Foreign keys
-# 8.- SQL Expressions
-# 9.- Functions in SQLAlchemy
-# 10.- Naming a table
+class TableNameMixin(object):
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower() + "s"
+
+    id = Column(UUID, primary_key=True)
 
 
-class User(Base):
-    __tablename__ = "users"
-
-    telegram_id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    full_name: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
-    username: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
-    language_code: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, nullable=False, server_default=func.now()
     )
-    referred_id: Mapped[int] = mapped_column(
-        BIGINT, ForeignKey("users.telegram_id", ondelete="SET NULL"), nullable=False
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP, nullable=False, server_default=func.now(), onupdate=func.now()
     )
+
+
+class User(TableNameMixin, Base, TimestampMixin):
+    full_name: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+    username: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+    language_code: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+    referred_id: Mapped[int] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=False
+    )
+
+
+class Product(TableNameMixin, Base, TimestampMixin):
+    title: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+    description: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+
+
+class Order(TableNameMixin, Base, TimestampMixin):
+    user_id: Mapped[UUID] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=False
+    )
+
+
+class OrderProduct(TableNameMixin, Base, TimestampMixin):
+    order_id: Mapped[UUID] = mapped_column(
+        UUID, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
+    )
+    product_id: Mapped[UUID] = mapped_column(
+        UUID, ForeignKey("products.id", ondelete="RESTRICT"), nullable=False
+    )
+    quantity: Mapped[int] = mapped_column(BIGINT, nullable=False)
+
+    # order = relationship("Order", back_populates = "orderproducts")
+    # product = relationship("Product", back_populates = "orderproducts")
